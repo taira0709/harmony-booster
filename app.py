@@ -20,7 +20,7 @@ def check_password() -> bool:
     if st.session_state.auth_ok:
         return True
 
-    st.title("繝上・繝｢繝九・繝悶・繧ｹ繧ｿ繝ｼ 繝ｭ繧ｰ繧､繝ｳ")
+    st.title("ハーモニーブースター ログイン")
     with st.form("login_form", clear_on_submit=False):
         pwd = st.text_input("パスワード", type="password")
         ok = st.form_submit_button("繝ｭ繧ｰ繧､繝ｳ")
@@ -28,9 +28,9 @@ def check_password() -> bool:
         expected = st.secrets.get("APP_PASSWORD", os.environ.get("APP_PASSWORD", "hb2025"))
         if pwd == expected:
             st.session_state.auth_ok = True
-            st.success("繝ｭ繧ｰ繧､繝ｳ縺励∪縺励◆縲・); st.rerun()
+        st.success("ログインしました。"); st.rerun()
         else:
-            st.error("繝代せ繝ｯ繝ｼ繝峨′驕輔＞縺ｾ縺吶・)
+        st.error("パスワードが違います。")
     return False
 
 if not check_password():
