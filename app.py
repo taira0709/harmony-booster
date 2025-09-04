@@ -22,7 +22,7 @@ def check_password() -> bool:
 
     st.title("繝上・繝｢繝九・繝悶・繧ｹ繧ｿ繝ｼ 繝ｭ繧ｰ繧､繝ｳ")
     with st.form("login_form", clear_on_submit=False):
-        pwd = st.text_input("繝代せ繝ｯ繝ｼ繝・, type="password")
+        pwd = st.text_input("パスワード", type="password")
         ok = st.form_submit_button("繝ｭ繧ｰ繧､繝ｳ")
     if ok:
         expected = st.secrets.get("APP_PASSWORD", os.environ.get("APP_PASSWORD", "hb2025"))
