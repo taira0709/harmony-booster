@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # Harmony Booster app.py
-# - エクスポ�EチE ms_vocal_attenuator.run_file() ぁEout_path 忁E��でめE不要でも動くよぁE��アダプト
-# - プリセチE��: 冁E��キー (male/female/custom) で安定管琁E��男性/女性は帯埁ELow/High を編雁E��可、E# - プレビュー: <audio controls> 表示・ミュートしなぁE��Eid三�E割で中央ボ�Eカル帯域を強力減衰、E# - スライダー初期 0 dB、現在値表示、E
+# - 繧ｨ繧ｯ繧ｹ繝昴・繝・ ms_vocal_attenuator.run_file() 縺・out_path 蠢・医〒繧・荳崎ｦ√〒繧ょ虚縺上ｈ縺・↓繧｢繝繝励ヨ
+# - 繝励Μ繧ｻ繝・ヨ: 蜀・Κ繧ｭ繝ｼ (male/female/custom) 縺ｧ螳牙ｮ夂ｮ｡逅・ら塙諤ｧ/螂ｳ諤ｧ縺ｯ蟶ｯ蝓・Low/High 繧堤ｷｨ髮・ｸ榊庄縲・# - 繝励Ξ繝薙Η繝ｼ: <audio controls> 陦ｨ遉ｺ繝ｻ繝溘Η繝ｼ繝医＠縺ｪ縺・・id荳牙・蜑ｲ縺ｧ荳ｭ螟ｮ繝懊・繧ｫ繝ｫ蟶ｯ蝓溘ｒ蠑ｷ蜉帶ｸ幄｡ｰ縲・# - 繧ｹ繝ｩ繧､繝繝ｼ蛻晄悄 0 dB縲∫樟蝨ｨ蛟､陦ｨ遉ｺ縲・
 import os
 import io
 import base64
@@ -11,7 +11,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # ========== Page ==========
-st.set_page_config(page_title="Harmony Booster", page_icon="🎵", layout="centered")
+st.set_page_config(page_title="Harmony Booster", page_icon="七", layout="centered")
 
 # ========== Login ==========
 def check_password() -> bool:
@@ -20,17 +20,17 @@ def check_password() -> bool:
     if st.session_state.auth_ok:
         return True
 
-    st.title("ハ�Eモニ�Eブ�Eスター ログイン")
+    st.title("繝上・繝｢繝九・繝悶・繧ｹ繧ｿ繝ｼ 繝ｭ繧ｰ繧､繝ｳ")
     with st.form("login_form", clear_on_submit=False):
-        pwd = st.text_input("パスワーチE, type="password")
-        ok = st.form_submit_button("ログイン")
+        pwd = st.text_input("繝代せ繝ｯ繝ｼ繝・, type="password")
+        ok = st.form_submit_button("繝ｭ繧ｰ繧､繝ｳ")
     if ok:
         expected = st.secrets.get("APP_PASSWORD", os.environ.get("APP_PASSWORD", "hb2025"))
         if pwd == expected:
             st.session_state.auth_ok = True
-            st.success("ログインしました、E); st.rerun()
+            st.success("繝ｭ繧ｰ繧､繝ｳ縺励∪縺励◆縲・); st.rerun()
         else:
-            st.error("パスワードが違います、E)
+            st.error("繝代せ繝ｯ繝ｼ繝峨′驕輔＞縺ｾ縺吶・)
     return False
 
 if not check_password():
@@ -52,22 +52,22 @@ def init_state():
     s.setdefault("upload_bytes", None)
     s.setdefault("upload_mime", None)
 
-    # プリセチE��を安定キーで保持
+    # 繝励Μ繧ｻ繝・ヨ繧貞ｮ牙ｮ壹く繝ｼ縺ｧ菫晄戟
     s.setdefault("preset_id", "male")           # "male" / "female" / "custom"
-    s.setdefault("_last_applied_preset", None)  # 変更検知用
+    s.setdefault("_last_applied_preset", None)  # 螟画峩讀懃衍逕ｨ
 
-    # サーバ�E琁E��の既定値�E�②上部プリセチE��で更新�E�E    s.setdefault("band_low", 200.0)
+    # 繧ｵ繝ｼ繝仙・逅・畑縺ｮ譌｢螳壼､・遺贈荳企Κ繝励Μ繧ｻ繝・ヨ縺ｧ譖ｴ譁ｰ・・    s.setdefault("band_low", 200.0)
     s.setdefault("band_high", 6000.0)
-    s.setdefault("mid_atten_db", -24.0)  # 強めに中央ボ�Eカル減衰�E�書き�Eし用�E�E    s.setdefault("side_gain_db", 0.0)
+    s.setdefault("mid_atten_db", -24.0)  # 蠑ｷ繧√↓荳ｭ螟ｮ繝懊・繧ｫ繝ｫ貂幄｡ｰ・域嶌縺榊・縺礼畑・・    s.setdefault("side_gain_db", 0.0)
     s.setdefault("protect_low_hz", 120.0)
     s.setdefault("protect_high_hz", 8000.0)
     s.setdefault("output_gain_db", 0.0)
 
-# 冁E��キー ↁE表示ラベル
+# 蜀・Κ繧ｭ繝ｼ 竊・陦ｨ遉ｺ繝ｩ繝吶Ν
 PRESET_ORDER = ["male", "female", "custom"]
-PRESET_LABELS = {"male": "男性", "female": "女性", "custom": "カスタム"}
+PRESET_LABELS = {"male": "逕ｷ諤ｧ", "female": "螂ｳ諤ｧ", "custom": "繧ｫ繧ｹ繧ｿ繝"}
 
-# 男性/女性のプリセチE��値�E�Eustom は触らなぁE��EPRESET_PARAMS = {
+# 逕ｷ諤ｧ/螂ｳ諤ｧ縺ｮ繝励Μ繧ｻ繝・ヨ蛟､・・ustom 縺ｯ隗ｦ繧峨↑縺・ｼ・PRESET_PARAMS = {
     "male":   dict(band_low=120.0,  band_high=4000.0,  mid_atten_db=-22.0, side_gain_db=0.0),
     "female": dict(band_low=200.0,  band_high=10000.0, mid_atten_db=-24.0, side_gain_db=1.0),
 }
@@ -79,7 +79,7 @@ def apply_preset(preset_id: str):
             st.session_state[k] = v
 
 def process_now(in_bytes: bytes, in_name: str):
-    """③書き�Eし：ms_vocal_attenuator.run_file を安�Eに呼んで bytes を返す、E       - out_path 忁E��版/不要版どちらにも対応、E""
+    """竭｢譖ｸ縺榊・縺暦ｼ嗄s_vocal_attenuator.run_file 繧貞ｮ牙・縺ｫ蜻ｼ繧薙〒 bytes 繧定ｿ斐☆縲・       - out_path 蠢・育沿/荳崎ｦ∫沿縺ｩ縺｡繧峨↓繧ょｯｾ蠢懊・""
     in_suffix = os.path.splitext(in_name or "")[1] or ".wav"
     with tempfile.NamedTemporaryFile(delete=False, suffix=in_suffix) as tmp_in:
         tmp_in.write(in_bytes); tmp_in.flush()
@@ -89,7 +89,7 @@ def process_now(in_bytes: bytes, in_name: str):
         try:
             from ms_vocal_attenuator import run_file as _run_file
         except Exception as e:
-            raise RuntimeError(f"処琁E��ジュールの読み込みに失敗しました: {e}") from e
+            raise RuntimeError(f"蜃ｦ逅・Δ繧ｸ繝･繝ｼ繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: {e}") from e
 
         kw = dict(
             vocal_band=(float(st.session_state.band_low), float(st.session_state.band_high)),
@@ -100,30 +100,30 @@ def process_now(in_bytes: bytes, in_name: str):
             output_gain_db=float(st.session_state.output_gain_db),
         )
 
-        # シグネチャを見て out_path が忁E��か判断
+        # 繧ｷ繧ｰ繝阪メ繝｣繧定ｦ九※ out_path 縺悟ｿ・ｦ√°蛻､譁ｭ
         need_out = "out_path" in inspect.signature(_run_file).parameters
 
         out_path = None
         if need_out:
-            # 出力�E WAV で受ける（モジュールが別形式で書く場合�Eそ�Eまま上書きされる前提�E�E            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_out:
+            # 蜃ｺ蜉帙・ WAV 縺ｧ蜿励￠繧具ｼ医Δ繧ｸ繝･繝ｼ繝ｫ縺悟挨蠖｢蠑上〒譖ｸ縺丞ｴ蜷医・縺昴・縺ｾ縺ｾ荳頑嶌縺阪＆繧後ｋ蜑肴署・・            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_out:
                 out_path = tmp_out.name
-            # 一部実裁E��「存在してぁE��とエラー」になるため�Eに消しておく
+            # 荳驛ｨ螳溯｣・〒縲悟ｭ伜惠縺励※縺・ｋ縺ｨ繧ｨ繝ｩ繝ｼ縲阪↓縺ｪ繧九◆繧∝・縺ｫ豸医＠縺ｦ縺翫￥
             try: os.unlink(out_path)
             except Exception: pass
 
             ret = _run_file(in_path, out_path, **kw)
-            # 戻り値の形ぁEpath / (path, …) / None のどれでも拾えるように
+            # 謌ｻ繧雁､縺ｮ蠖｢縺・path / (path, 窶ｦ) / None 縺ｮ縺ｩ繧後〒繧よ鏡縺医ｋ繧医≧縺ｫ
             if isinstance(ret, tuple) and ret:
                 out_path = ret[0] or out_path
             elif isinstance(ret, str) and ret:
                 out_path = ret
-            # ret ぁENone でめEout_path に書かれてぁE��ばOK
+            # ret 縺・None 縺ｧ繧・out_path 縺ｫ譖ｸ縺九ｌ縺ｦ縺・ｌ縺ｰOK
         else:
             ret = _run_file(in_path, **kw)
             out_path = ret[0] if isinstance(ret, tuple) else ret
 
         if not out_path or not os.path.exists(out_path):
-            raise RuntimeError("処琁E��果ファイルが見つかりません。run_file() の仕様（戻り値/出力�E�E�を確認してください、E)
+            raise RuntimeError("蜃ｦ逅・ｵ先棡繝輔ぃ繧､繝ｫ縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ縲Ｓun_file() 縺ｮ莉墓ｧ假ｼ域綾繧雁､/蜃ｺ蜉帛・・峨ｒ遒ｺ隱阪＠縺ｦ縺上□縺輔＞縲・)
 
         with open(out_path, "rb") as f:
             out_bytes = f.read()
@@ -132,62 +132,62 @@ def process_now(in_bytes: bytes, in_name: str):
     finally:
         try: os.unlink(in_path)
         except Exception: pass
-        # out_path は呼び出し�Eで Bytes にした後、OS に任せてOK
+        # out_path 縺ｯ蜻ｼ縺ｳ蜃ｺ縺怜・縺ｧ Bytes 縺ｫ縺励◆蠕後＾S 縺ｫ莉ｻ縺帙※OK
 
-# 初期匁Einit_state()
+# 蛻晄悄蛹・init_state()
 
 # ========== UI ==========
-st.title("🎵 ハ�Eモニ�Eブ�Eスター�E�ハモリを�Eきやすく�E�E)
-with st.expander("使ぁE��", expanded=False):
+st.title("七 繝上・繝｢繝九・繝悶・繧ｹ繧ｿ繝ｼ・医ワ繝｢繝ｪ繧定・縺阪ｄ縺吶￥・・)
+with st.expander("菴ｿ縺・婿", expanded=False):
     st.markdown(
-        "1) ①ファイルを選ぶ\n"
-        "2) ②の**ボ�Eカル帯域�EリセチE��**�E�男性/女性/カスタム�E�で大枠を決め、下�E**プレビュー**で微調整\n"
-        "   - プレビューは処琁E��のみを狙ぁE��す（原音を足さなぁE��成）\n"
-        "3) ③書き�Eしで②上部プリセチE��の値を適用してダウンローチE
+        "1) 竭繝輔ぃ繧､繝ｫ繧帝∈縺ｶ\n"
+        "2) 竭｡縺ｮ**繝懊・繧ｫ繝ｫ蟶ｯ蝓溘・繝ｪ繧ｻ繝・ヨ**・育塙諤ｧ/螂ｳ諤ｧ/繧ｫ繧ｹ繧ｿ繝・峨〒螟ｧ譫繧呈ｱｺ繧√∽ｸ九・**繝励Ξ繝薙Η繝ｼ**縺ｧ蠕ｮ隱ｿ謨ｴ\n"
+        "   - 繝励Ξ繝薙Η繝ｼ縺ｯ蜃ｦ逅・浹縺ｮ縺ｿ繧堤漁縺・∪縺呻ｼ亥次髻ｳ繧定ｶｳ縺輔↑縺・粋謌撰ｼ噂n"
+        "3) 竭｢譖ｸ縺榊・縺励〒竭｡荳企Κ繝励Μ繧ｻ繝・ヨ縺ｮ蛟､繧帝←逕ｨ縺励※繝繧ｦ繝ｳ繝ｭ繝ｼ繝・
     )
 
-tabs = st.tabs(["①ファイル", "②調整�E�E�Eレビュー", "③書き�EぁE])
+tabs = st.tabs(["竭繝輔ぃ繧､繝ｫ", "竭｡隱ｿ謨ｴ・・・繝ｬ繝薙Η繝ｼ", "竭｢譖ｸ縺榊・縺・])
 
-# --- ① ファイル ---
+# --- 竭 繝輔ぃ繧､繝ｫ ---
 with tabs[0]:
     uploaded = st.file_uploader(
-        "音源をアチE�EローチE,
+        "髻ｳ貅舌ｒ繧｢繝・・繝ｭ繝ｼ繝・,
         type=["wav","mp3","m4a","flac","ogg","aiff","aif"],
         accept_multiple_files=False,
-        help="1ファイルあためE00MBまで�E�忁E��に応じて変更可�E�E,
+        help="1繝輔ぃ繧､繝ｫ縺ゅ◆繧・00MB縺ｾ縺ｧ・亥ｿ・ｦ√↓蠢懊§縺ｦ螟画峩蜿ｯ・・,
     )
     if uploaded:
         st.session_state.upload_name = uploaded.name
         st.session_state.upload_bytes = uploaded.getbuffer().tobytes()
         st.session_state.upload_mime  = guess_mime_from_name(uploaded.name)
-        st.success(f"読み込み完亁E {uploaded.name}")
+        st.success(f"隱ｭ縺ｿ霎ｼ縺ｿ螳御ｺ・ {uploaded.name}")
 
-# --- ② 調整�E�E�Eレビュー ---
+# --- 竭｡ 隱ｿ謨ｴ・・・繝ｬ繝薙Η繝ｼ ---
 with tabs[1]:
     if st.session_state.upload_bytes is None:
-        st.info("先に「①ファイル」で音声を選んでください、E)
+        st.info("蜈医↓縲娯蔵繝輔ぃ繧､繝ｫ縲阪〒髻ｳ螢ｰ繧帝∈繧薙〒縺上□縺輔＞縲・)
     else:
-        # ▼ プリセチE���E��E部キーめEwidget の key にも採用してブレを根絶�E�E        st.subheader("ボ�Eカル帯域�EリセチE��")
-        # widget で直接 preset_id を管琁E��format_func で日本語表示、E        default_idx = PRESET_ORDER.index(st.session_state.preset_id)
+        # 笆ｼ 繝励Μ繧ｻ繝・ヨ・亥・驛ｨ繧ｭ繝ｼ繧・widget 縺ｮ key 縺ｫ繧よ治逕ｨ縺励※繝悶Ξ繧呈ｹ邨ｶ・・        st.subheader("繝懊・繧ｫ繝ｫ蟶ｯ蝓溘・繝ｪ繧ｻ繝・ヨ")
+        # widget 縺ｧ逶ｴ謗･ preset_id 繧堤ｮ｡逅・Ｇormat_func 縺ｧ譌･譛ｬ隱櫁｡ｨ遉ｺ縲・        default_idx = PRESET_ORDER.index(st.session_state.preset_id)
         st.selectbox(
             label="",
             options=PRESET_ORDER,
             index=default_idx,
             format_func=lambda k: PRESET_LABELS[k],
-            key="preset_id",  # ↁEWidget 値�E�セチE��ョンの preset_id と一致
+            key="preset_id",  # 竊・Widget 蛟､・昴そ繝・す繝ｧ繝ｳ縺ｮ preset_id 縺ｨ荳閾ｴ
             label_visibility="collapsed",
         )
-        # 変更があれ�E一度だけ適用�E�Eustom はそ�Eまま�E�E        if st.session_state.preset_id != st.session_state._last_applied_preset:
+        # 螟画峩縺後≠繧後・荳蠎ｦ縺縺鷹←逕ｨ・・ustom 縺ｯ縺昴・縺ｾ縺ｾ・・        if st.session_state.preset_id != st.session_state._last_applied_preset:
             if st.session_state.preset_id in ("male", "female"):
                 apply_preset(st.session_state.preset_id)
             st.session_state._last_applied_preset = st.session_state.preset_id
 
-        # ▼ プレビュー�E�EebAudio・無ミュート！E        st.subheader("プレビュー")
+        # 笆ｼ 繝励Ξ繝薙Η繝ｼ・・ebAudio繝ｻ辟｡繝溘Η繝ｼ繝茨ｼ・        st.subheader("繝励Ξ繝薙Η繝ｼ")
 
         b64  = base64.b64encode(st.session_state.upload_bytes).decode("ascii")
         mime = st.session_state.upload_mime or guess_mime_from_name(st.session_state.upload_name or "")
 
-        # スライダー初期値は 0 dB�E�サーバ�E琁E��とは独立！E        low   = float(st.session_state.band_low)
+        # 繧ｹ繝ｩ繧､繝繝ｼ蛻晄悄蛟､縺ｯ 0 dB・医し繝ｼ繝仙・逅・畑縺ｨ縺ｯ迢ｬ遶具ｼ・        low   = float(st.session_state.band_low)
         high  = float(st.session_state.band_high)
         mid_ui = 0.0
         side_ui = 0.0
@@ -195,7 +195,7 @@ with tabs[1]:
         plow  = float(st.session_state.protect_low_hz)
         phigh = float(st.session_state.protect_high_hz)
 
-        # 男性/女性のとき�E帯域編雁E��可
+        # 逕ｷ諤ｧ/螂ｳ諤ｧ縺ｮ縺ｨ縺阪・蟶ｯ蝓溽ｷｨ髮・ｸ榊庄
         band_disabled_attr = "" if st.session_state.preset_id == "custom" else "disabled"
 
         html = """
@@ -216,40 +216,40 @@ small { color:#666; }
 <div class="wrap">
   <div class="card">
     <audio id="player" controls preload="auto" style="width:100%"></audio>
-    <small>※ 原音は足さず、中央ボ�Eカル帯域だけを強力に減衰します、E/small>
+    <small>窶ｻ 蜴滄浹縺ｯ雜ｳ縺輔★縲∽ｸｭ螟ｮ繝懊・繧ｫ繝ｫ蟶ｯ蝓溘□縺代ｒ蠑ｷ蜉帙↓貂幄｡ｰ縺励∪縺吶・/small>
   </div>
 
   <div class="grid">
     <div class="card">
-      <label><span>帯埁ELow (Hz)</span>
+      <label><span>蟶ｯ蝓・Low (Hz)</span>
         <input id="low" class="range" type="number" min="50" max="12000" step="10" value="%%LOW%%" %%BAND_DISABLE%%>
       </label><br/>
-      <label><span>帯埁EHigh (Hz)</span>
+      <label><span>蟶ｯ蝓・High (Hz)</span>
         <input id="high" class="range" type="number" min="200" max="20000" step="10" value="%%HIGH%%" %%BAND_DISABLE%%>
       </label><br/>
 
-      <label><span>ミッドゲイン</span>
+      <label><span>繝溘ャ繝峨ご繧､繝ｳ</span>
         <input id="mid" class="range" type="range" min="-80" max="6" step="0.5" value="%%MID_UI%%">
         <span id="midVal" class="val">%%MID_UI%% dB</span>
       </label><br/>
-      <label><span>サイドゲイン</span>
+      <label><span>繧ｵ繧､繝峨ご繧､繝ｳ</span>
         <input id="side" class="range" type="range" min="-12" max="12" step="0.5" value="%%SIDE_UI%%">
         <span id="sideVal" class="val">%%SIDE_UI%% dB</span>
       </label><br/>
-      <label><span>出力ゲイン</span>
+      <label><span>蜃ｺ蜉帙ご繧､繝ｳ</span>
         <input id="out" class="range" type="range" min="-12" max="12" step="0.5" value="%%OUT_UI%%">
         <span id="outVal" class="val">%%OUT_UI%% dB</span>
       </label>
     </div>
 
     <div class="card">
-      <label><span>佁EHz)を保護</span>
+      <label><span>菴・Hz)繧剃ｿ晁ｭｷ</span>
         <input id="plow" class="range" type="number" min="20" max="400" step="10" value="%%PROT_LO%%">
       </label><br/>
-      <label><span>髁EHz)を保護</span>
+      <label><span>鬮・Hz)繧剃ｿ晁ｭｷ</span>
         <input id="phigh" class="range" type="number" min="4000" max="20000" step="100" value="%%PROT_HI%%">
       </label><br/>
-      <small>※ 男性/女性プリセチE��時�E帯域Low/Highは固定です。変更したぁE��合�E「カスタム」を選択してください、E/small>
+      <small>窶ｻ 逕ｷ諤ｧ/螂ｳ諤ｧ繝励Μ繧ｻ繝・ヨ譎ゅ・蟶ｯ蝓櫚ow/High縺ｯ蝗ｺ螳壹〒縺吶ょ､画峩縺励◆縺・ｴ蜷医・縲後き繧ｹ繧ｿ繝縲阪ｒ驕ｸ謚槭＠縺ｦ縺上□縺輔＞縲・/small>
     </div>
   </div>
 </div>
@@ -263,7 +263,7 @@ small { color:#666; }
   const AC = window.AudioContext || window.webkitAudioContext;
   const ctx = new AC();
 
-  // ユーザー操作で忁E�� resume�E�Eutoplay 対策！E  ['play','click','pointerdown','touchstart','keydown'].forEach(ev=>{
+  // 繝ｦ繝ｼ繧ｶ繝ｼ謫堺ｽ懊〒蠢・★ resume・・utoplay 蟇ｾ遲厄ｼ・  ['play','click','pointerdown','touchstart','keydown'].forEach(ev=>{
     document.addEventListener(ev, ()=>{ if (ctx.state!=='running') ctx.resume().catch(()=>{}); }, {passive:true});
     au.addEventListener(ev, ()=>{ if (ctx.state!=='running') ctx.resume().catch(()=>{}); }, {passive:true});
   });
@@ -272,7 +272,7 @@ small { color:#666; }
   const splitter = ctx.createChannelSplitter(2);
   src.connect(splitter);
 
-  // ==== Mid/Side 刁E�� ====
+  // ==== Mid/Side 蛻・ｧ｣ ====
   const gLtoM = ctx.createGain(); gLtoM.gain.value = 0.5;
   const gRtoM = ctx.createGain(); gRtoM.gain.value = 0.5;
   splitter.connect(gLtoM, 0); splitter.connect(gRtoM, 1);
@@ -283,7 +283,7 @@ small { color:#666; }
   splitter.connect(gLtoS, 0); splitter.connect(gRtoS, 1);
   const sSum = ctx.createGain(); gLtoS.connect(sSum); gRtoS.connect(sSum);
 
-  // ==== Mid 三�E割�E�佁E帯埁E高）�E 再合成（原音を足さなぁE��E===
+  // ==== Mid 荳牙・蜑ｲ・井ｽ・蟶ｯ蝓・鬮假ｼ俄・ 蜀榊粋謌撰ｼ亥次髻ｳ繧定ｶｳ縺輔↑縺・ｼ・===
   function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
   function db2lin(db){ return Math.pow(10, db/20); }
 
@@ -306,10 +306,10 @@ small { color:#666; }
   const sumM = ctx.createGain(); mLow.connect(sumM); mScaled.connect(sumM); mHigh.connect(sumM);
   const mOut = sumM;
 
-  // ==== Side処琁E====
+  // ==== Side蜃ｦ逅・====
   const sGain = ctx.createGain(); sGain.gain.value = 1.0; sSum.connect(sGain);
 
-  // ==== 出力合成！E+S, M-S�E�E===
+  // ==== 蜃ｺ蜉帛粋謌撰ｼ・+S, M-S・・===
   const sumL = ctx.createGain(); const sumR = ctx.createGain();
   const mToL = ctx.createGain(); mToL.gain.value = 1.0;
   const sToL = ctx.createGain(); sToL.gain.value = 1.0;
@@ -327,7 +327,7 @@ small { color:#666; }
   merger.connect(outGain);
   outGain.connect(ctx.destination);
 
-  // ==== UI�E�EB表示�E�E===
+  // ==== UI・・B陦ｨ遉ｺ・・===
   const midVal  = document.getElementById('midVal');
   const sideVal = document.getElementById('sideVal');
   const outVal  = document.getElementById('outVal');
@@ -365,7 +365,7 @@ small { color:#666; }
     }catch(e){ console.warn("update skipped", e); }
   }
 
-  // スライダー値を�E期化�E�E��映
+  // 繧ｹ繝ｩ繧､繝繝ｼ蛟､繧貞・譛溷喧・・渚譏
   document.getElementById('low').value   = "%%LOW%%";
   document.getElementById('high').value  = "%%HIGH%%";
   document.getElementById('mid').value   = "%%MID_UI%%";
@@ -398,27 +398,28 @@ small { color:#666; }
                 )
         components.html(html, height=520, scrolling=False)
 
-# --- ③ 書き�EぁE---
+# --- 竭｢ 譖ｸ縺榊・縺・---
 with tabs[2]:
     if st.session_state.upload_bytes is None:
-        st.info("先に「①ファイル」で音声を選んでください、E)
+        st.info("蜈医↓縲娯蔵繝輔ぃ繧､繝ｫ縲阪〒髻ｳ螢ｰ繧帝∈繧薙〒縺上□縺輔＞縲・)
     else:
-        st.write("現在のサーバ�E琁E��設定！E
+        st.write("迴ｾ蝨ｨ縺ｮ繧ｵ繝ｼ繝仙・逅・畑險ｭ螳夲ｼ・
                  f"Preset {PRESET_LABELS[st.session_state.preset_id]} / "
                  f"Band {st.session_state.band_low:.0f}-{st.session_state.band_high:.0f} Hz / "
                  f"Mid {st.session_state.mid_atten_db:.1f} dB / Side {st.session_state.side_gain_db:.1f} dB / "
                  f"Protect {st.session_state.protect_low_hz:.0f}-{st.session_state.protect_high_hz:.0f} Hz / "
                  f"Out {st.session_state.output_gain_db:.1f} dB")
 
-        if st.button("高品質で処琁E��てダウンローチE, type="primary"):
+        if st.button("鬮伜刀雉ｪ縺ｧ蜃ｦ逅・＠縺ｦ繝繧ｦ繝ｳ繝ｭ繝ｼ繝・, type="primary"):
             try:
-                with st.spinner("書き�Eし中..."):
+                with st.spinner("譖ｸ縺榊・縺嶺ｸｭ..."):
                     out_b, out_mime, out_name = process_now(
                         st.session_state.upload_bytes, st.session_state.upload_name
                     )
-                st.download_button("結果をダウンローチE,
+                st.download_button("邨先棡繧偵ム繧ｦ繝ｳ繝ｭ繝ｼ繝・,
                                    data=io.BytesIO(out_b),
                                    file_name=out_name, mime=out_mime)
-                st.success("書き�Eしが完亁E��ました、E)
+                st.success("譖ｸ縺榊・縺励′螳御ｺ・＠縺ｾ縺励◆縲・)
             except Exception as e:
                 st.error(str(e))
+
