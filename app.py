@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 # Harmony Booster app.py
-# - エクスポート: ms_vocal_attenuator.run_file() が out_path 必須でも/不要でも動くようにアダプト
-# - プリセット: 内部キー (male/female/custom) で安定管理。男性/女性は帯域 Low/High を編集不可。
-# - プレビュー: <audio controls> 表示・ミュートしない。Mid三分割で中央ボーカル帯域を強力減衰。
-# - スライダー初期 0 dB、現在値表示。
-
+# - エクスポ�EチE ms_vocal_attenuator.run_file() ぁEout_path 忁E��でめE不要でも動くよぁE��アダプト
+# - プリセチE��: 冁E��キー (male/female/custom) で安定管琁E��男性/女性は帯埁ELow/High を編雁E��可、E# - プレビュー: <audio controls> 表示・ミュートしなぁE��Eid三�E割で中央ボ�Eカル帯域を強力減衰、E# - スライダー初期 0 dB、現在値表示、E
 import os
 import io
 import base64
@@ -23,17 +20,17 @@ def check_password() -> bool:
     if st.session_state.auth_ok:
         return True
 
-    st.title("ハーモニーブースター ログイン")
+    st.title("ハ�Eモニ�Eブ�Eスター ログイン")
     with st.form("login_form", clear_on_submit=False):
-        pwd = st.text_input("パスワード", type="password")
+        pwd = st.text_input("パスワーチE, type="password")
         ok = st.form_submit_button("ログイン")
     if ok:
-        expected = os.environ.get("APP_PASSWORD", "hb2025")
+        expected = st.secrets.get("APP_PASSWORD", os.environ.get("APP_PASSWORD", "hb2025"))
         if pwd == expected:
             st.session_state.auth_ok = True
-            st.success("ログインしました。"); st.rerun()
+            st.success("ログインしました、E); st.rerun()
         else:
-            st.error("パスワードが違います。")
+            st.error("パスワードが違います、E)
     return False
 
 if not check_password():
@@ -55,25 +52,22 @@ def init_state():
     s.setdefault("upload_bytes", None)
     s.setdefault("upload_mime", None)
 
-    # プリセットを安定キーで保持
+    # プリセチE��を安定キーで保持
     s.setdefault("preset_id", "male")           # "male" / "female" / "custom"
     s.setdefault("_last_applied_preset", None)  # 変更検知用
 
-    # サーバ処理用の既定値（②上部プリセットで更新）
-    s.setdefault("band_low", 200.0)
+    # サーバ�E琁E��の既定値�E�②上部プリセチE��で更新�E�E    s.setdefault("band_low", 200.0)
     s.setdefault("band_high", 6000.0)
-    s.setdefault("mid_atten_db", -24.0)  # 強めに中央ボーカル減衰（書き出し用）
-    s.setdefault("side_gain_db", 0.0)
+    s.setdefault("mid_atten_db", -24.0)  # 強めに中央ボ�Eカル減衰�E�書き�Eし用�E�E    s.setdefault("side_gain_db", 0.0)
     s.setdefault("protect_low_hz", 120.0)
     s.setdefault("protect_high_hz", 8000.0)
     s.setdefault("output_gain_db", 0.0)
 
-# 内部キー → 表示ラベル
+# 冁E��キー ↁE表示ラベル
 PRESET_ORDER = ["male", "female", "custom"]
 PRESET_LABELS = {"male": "男性", "female": "女性", "custom": "カスタム"}
 
-# 男性/女性のプリセット値（custom は触らない）
-PRESET_PARAMS = {
+# 男性/女性のプリセチE��値�E�Eustom は触らなぁE��EPRESET_PARAMS = {
     "male":   dict(band_low=120.0,  band_high=4000.0,  mid_atten_db=-22.0, side_gain_db=0.0),
     "female": dict(band_low=200.0,  band_high=10000.0, mid_atten_db=-24.0, side_gain_db=1.0),
 }
@@ -85,8 +79,7 @@ def apply_preset(preset_id: str):
             st.session_state[k] = v
 
 def process_now(in_bytes: bytes, in_name: str):
-    """③書き出し：ms_vocal_attenuator.run_file を安全に呼んで bytes を返す。
-       - out_path 必須版/不要版どちらにも対応。"""
+    """③書き�Eし：ms_vocal_attenuator.run_file を安�Eに呼んで bytes を返す、E       - out_path 忁E��版/不要版どちらにも対応、E""
     in_suffix = os.path.splitext(in_name or "")[1] or ".wav"
     with tempfile.NamedTemporaryFile(delete=False, suffix=in_suffix) as tmp_in:
         tmp_in.write(in_bytes); tmp_in.flush()
@@ -96,7 +89,7 @@ def process_now(in_bytes: bytes, in_name: str):
         try:
             from ms_vocal_attenuator import run_file as _run_file
         except Exception as e:
-            raise RuntimeError(f"処理モジュールの読み込みに失敗しました: {e}") from e
+            raise RuntimeError(f"処琁E��ジュールの読み込みに失敗しました: {e}") from e
 
         kw = dict(
             vocal_band=(float(st.session_state.band_low), float(st.session_state.band_high)),
@@ -107,31 +100,30 @@ def process_now(in_bytes: bytes, in_name: str):
             output_gain_db=float(st.session_state.output_gain_db),
         )
 
-        # シグネチャを見て out_path が必要か判断
+        # シグネチャを見て out_path が忁E��か判断
         need_out = "out_path" in inspect.signature(_run_file).parameters
 
         out_path = None
         if need_out:
-            # 出力は WAV で受ける（モジュールが別形式で書く場合はそのまま上書きされる前提）
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_out:
+            # 出力�E WAV で受ける（モジュールが別形式で書く場合�Eそ�Eまま上書きされる前提�E�E            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_out:
                 out_path = tmp_out.name
-            # 一部実装で「存在しているとエラー」になるため先に消しておく
+            # 一部実裁E��「存在してぁE��とエラー」になるため�Eに消しておく
             try: os.unlink(out_path)
             except Exception: pass
 
             ret = _run_file(in_path, out_path, **kw)
-            # 戻り値の形が path / (path, …) / None のどれでも拾えるように
+            # 戻り値の形ぁEpath / (path, …) / None のどれでも拾えるように
             if isinstance(ret, tuple) and ret:
                 out_path = ret[0] or out_path
             elif isinstance(ret, str) and ret:
                 out_path = ret
-            # ret が None でも out_path に書かれていればOK
+            # ret ぁENone でめEout_path に書かれてぁE��ばOK
         else:
             ret = _run_file(in_path, **kw)
             out_path = ret[0] if isinstance(ret, tuple) else ret
 
         if not out_path or not os.path.exists(out_path):
-            raise RuntimeError("処理結果ファイルが見つかりません。run_file() の仕様（戻り値/出力先）を確認してください。")
+            raise RuntimeError("処琁E��果ファイルが見つかりません。run_file() の仕様（戻り値/出力�E�E�を確認してください、E)
 
         with open(out_path, "rb") as f:
             out_bytes = f.read()
@@ -140,68 +132,62 @@ def process_now(in_bytes: bytes, in_name: str):
     finally:
         try: os.unlink(in_path)
         except Exception: pass
-        # out_path は呼び出し側で Bytes にした後、OS に任せてOK
+        # out_path は呼び出し�Eで Bytes にした後、OS に任せてOK
 
-# 初期化
-init_state()
+# 初期匁Einit_state()
 
 # ========== UI ==========
-st.title("🎵 ハーモニーブースター（ハモリを聴きやすく）")
-with st.expander("使い方", expanded=False):
+st.title("🎵 ハ�Eモニ�Eブ�Eスター�E�ハモリを�Eきやすく�E�E)
+with st.expander("使ぁE��", expanded=False):
     st.markdown(
         "1) ①ファイルを選ぶ\n"
-        "2) ②の**ボーカル帯域プリセット**（男性/女性/カスタム）で大枠を決め、下の**プレビュー**で微調整\n"
-        "   - プレビューは処理音のみを狙います（原音を足さない合成）\n"
-        "3) ③書き出しで②上部プリセットの値を適用してダウンロード"
+        "2) ②の**ボ�Eカル帯域�EリセチE��**�E�男性/女性/カスタム�E�で大枠を決め、下�E**プレビュー**で微調整\n"
+        "   - プレビューは処琁E��のみを狙ぁE��す（原音を足さなぁE��成）\n"
+        "3) ③書き�Eしで②上部プリセチE��の値を適用してダウンローチE
     )
 
-tabs = st.tabs(["①ファイル", "②調整＆プレビュー", "③書き出し"])
+tabs = st.tabs(["①ファイル", "②調整�E�E�Eレビュー", "③書き�EぁE])
 
 # --- ① ファイル ---
 with tabs[0]:
     uploaded = st.file_uploader(
-        "音源をアップロード",
+        "音源をアチE�EローチE,
         type=["wav","mp3","m4a","flac","ogg","aiff","aif"],
         accept_multiple_files=False,
-        help="1ファイルあたり200MBまで（必要に応じて変更可）",
+        help="1ファイルあためE00MBまで�E�忁E��に応じて変更可�E�E,
     )
     if uploaded:
         st.session_state.upload_name = uploaded.name
         st.session_state.upload_bytes = uploaded.getbuffer().tobytes()
         st.session_state.upload_mime  = guess_mime_from_name(uploaded.name)
-        st.success(f"読み込み完了: {uploaded.name}")
+        st.success(f"読み込み完亁E {uploaded.name}")
 
-# --- ② 調整＆プレビュー ---
+# --- ② 調整�E�E�Eレビュー ---
 with tabs[1]:
     if st.session_state.upload_bytes is None:
-        st.info("先に「①ファイル」で音声を選んでください。")
+        st.info("先に「①ファイル」で音声を選んでください、E)
     else:
-        # ▼ プリセット（内部キーを widget の key にも採用してブレを根絶）
-        st.subheader("ボーカル帯域プリセット")
-        # widget で直接 preset_id を管理。format_func で日本語表示。
-        default_idx = PRESET_ORDER.index(st.session_state.preset_id)
+        # ▼ プリセチE���E��E部キーめEwidget の key にも採用してブレを根絶�E�E        st.subheader("ボ�Eカル帯域�EリセチE��")
+        # widget で直接 preset_id を管琁E��format_func で日本語表示、E        default_idx = PRESET_ORDER.index(st.session_state.preset_id)
         st.selectbox(
             label="",
             options=PRESET_ORDER,
             index=default_idx,
             format_func=lambda k: PRESET_LABELS[k],
-            key="preset_id",  # ← Widget 値＝セッションの preset_id と一致
+            key="preset_id",  # ↁEWidget 値�E�セチE��ョンの preset_id と一致
             label_visibility="collapsed",
         )
-        # 変更があれば一度だけ適用（custom はそのまま）
-        if st.session_state.preset_id != st.session_state._last_applied_preset:
+        # 変更があれ�E一度だけ適用�E�Eustom はそ�Eまま�E�E        if st.session_state.preset_id != st.session_state._last_applied_preset:
             if st.session_state.preset_id in ("male", "female"):
                 apply_preset(st.session_state.preset_id)
             st.session_state._last_applied_preset = st.session_state.preset_id
 
-        # ▼ プレビュー（WebAudio・無ミュート）
-        st.subheader("プレビュー")
+        # ▼ プレビュー�E�EebAudio・無ミュート！E        st.subheader("プレビュー")
 
         b64  = base64.b64encode(st.session_state.upload_bytes).decode("ascii")
         mime = st.session_state.upload_mime or guess_mime_from_name(st.session_state.upload_name or "")
 
-        # スライダー初期値は 0 dB（サーバ処理用とは独立）
-        low   = float(st.session_state.band_low)
+        # スライダー初期値は 0 dB�E�サーバ�E琁E��とは独立！E        low   = float(st.session_state.band_low)
         high  = float(st.session_state.band_high)
         mid_ui = 0.0
         side_ui = 0.0
@@ -209,7 +195,7 @@ with tabs[1]:
         plow  = float(st.session_state.protect_low_hz)
         phigh = float(st.session_state.protect_high_hz)
 
-        # 男性/女性のときは帯域編集不可
+        # 男性/女性のとき�E帯域編雁E��可
         band_disabled_attr = "" if st.session_state.preset_id == "custom" else "disabled"
 
         html = """
@@ -230,15 +216,15 @@ small { color:#666; }
 <div class="wrap">
   <div class="card">
     <audio id="player" controls preload="auto" style="width:100%"></audio>
-    <small>※ 原音は足さず、中央ボーカル帯域だけを強力に減衰します。</small>
+    <small>※ 原音は足さず、中央ボ�Eカル帯域だけを強力に減衰します、E/small>
   </div>
 
   <div class="grid">
     <div class="card">
-      <label><span>帯域 Low (Hz)</span>
+      <label><span>帯埁ELow (Hz)</span>
         <input id="low" class="range" type="number" min="50" max="12000" step="10" value="%%LOW%%" %%BAND_DISABLE%%>
       </label><br/>
-      <label><span>帯域 High (Hz)</span>
+      <label><span>帯埁EHigh (Hz)</span>
         <input id="high" class="range" type="number" min="200" max="20000" step="10" value="%%HIGH%%" %%BAND_DISABLE%%>
       </label><br/>
 
@@ -257,13 +243,13 @@ small { color:#666; }
     </div>
 
     <div class="card">
-      <label><span>低(Hz)を保護</span>
+      <label><span>佁EHz)を保護</span>
         <input id="plow" class="range" type="number" min="20" max="400" step="10" value="%%PROT_LO%%">
       </label><br/>
-      <label><span>高(Hz)を保護</span>
+      <label><span>髁EHz)を保護</span>
         <input id="phigh" class="range" type="number" min="4000" max="20000" step="100" value="%%PROT_HI%%">
       </label><br/>
-      <small>※ 男性/女性プリセット時は帯域Low/Highは固定です。変更したい場合は「カスタム」を選択してください。</small>
+      <small>※ 男性/女性プリセチE��時�E帯域Low/Highは固定です。変更したぁE��合�E「カスタム」を選択してください、E/small>
     </div>
   </div>
 </div>
@@ -277,8 +263,7 @@ small { color:#666; }
   const AC = window.AudioContext || window.webkitAudioContext;
   const ctx = new AC();
 
-  // ユーザー操作で必ず resume（autoplay 対策）
-  ['play','click','pointerdown','touchstart','keydown'].forEach(ev=>{
+  // ユーザー操作で忁E�� resume�E�Eutoplay 対策！E  ['play','click','pointerdown','touchstart','keydown'].forEach(ev=>{
     document.addEventListener(ev, ()=>{ if (ctx.state!=='running') ctx.resume().catch(()=>{}); }, {passive:true});
     au.addEventListener(ev, ()=>{ if (ctx.state!=='running') ctx.resume().catch(()=>{}); }, {passive:true});
   });
@@ -287,7 +272,7 @@ small { color:#666; }
   const splitter = ctx.createChannelSplitter(2);
   src.connect(splitter);
 
-  // ==== Mid/Side 分解 ====
+  // ==== Mid/Side 刁E�� ====
   const gLtoM = ctx.createGain(); gLtoM.gain.value = 0.5;
   const gRtoM = ctx.createGain(); gRtoM.gain.value = 0.5;
   splitter.connect(gLtoM, 0); splitter.connect(gRtoM, 1);
@@ -298,7 +283,7 @@ small { color:#666; }
   splitter.connect(gLtoS, 0); splitter.connect(gRtoS, 1);
   const sSum = ctx.createGain(); gLtoS.connect(sSum); gRtoS.connect(sSum);
 
-  // ==== Mid 三分割（低/帯域/高）→ 再合成（原音を足さない）====
+  // ==== Mid 三�E割�E�佁E帯埁E高）�E 再合成（原音を足さなぁE��E===
   function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
   function db2lin(db){ return Math.pow(10, db/20); }
 
@@ -321,10 +306,10 @@ small { color:#666; }
   const sumM = ctx.createGain(); mLow.connect(sumM); mScaled.connect(sumM); mHigh.connect(sumM);
   const mOut = sumM;
 
-  // ==== Side処理 ====
+  // ==== Side処琁E====
   const sGain = ctx.createGain(); sGain.gain.value = 1.0; sSum.connect(sGain);
 
-  // ==== 出力合成（M+S, M-S）====
+  // ==== 出力合成！E+S, M-S�E�E===
   const sumL = ctx.createGain(); const sumR = ctx.createGain();
   const mToL = ctx.createGain(); mToL.gain.value = 1.0;
   const sToL = ctx.createGain(); sToL.gain.value = 1.0;
@@ -342,7 +327,7 @@ small { color:#666; }
   merger.connect(outGain);
   outGain.connect(ctx.destination);
 
-  // ==== UI（dB表示）====
+  // ==== UI�E�EB表示�E�E===
   const midVal  = document.getElementById('midVal');
   const sideVal = document.getElementById('sideVal');
   const outVal  = document.getElementById('outVal');
@@ -380,7 +365,7 @@ small { color:#666; }
     }catch(e){ console.warn("update skipped", e); }
   }
 
-  // スライダー値を初期化＆反映
+  // スライダー値を�E期化�E�E��映
   document.getElementById('low').value   = "%%LOW%%";
   document.getElementById('high').value  = "%%HIGH%%";
   document.getElementById('mid').value   = "%%MID_UI%%";
@@ -413,27 +398,27 @@ small { color:#666; }
                 )
         components.html(html, height=520, scrolling=False)
 
-# --- ③ 書き出し ---
+# --- ③ 書き�EぁE---
 with tabs[2]:
     if st.session_state.upload_bytes is None:
-        st.info("先に「①ファイル」で音声を選んでください。")
+        st.info("先に「①ファイル」で音声を選んでください、E)
     else:
-        st.write("現在のサーバ処理用設定："
+        st.write("現在のサーバ�E琁E��設定！E
                  f"Preset {PRESET_LABELS[st.session_state.preset_id]} / "
                  f"Band {st.session_state.band_low:.0f}-{st.session_state.band_high:.0f} Hz / "
                  f"Mid {st.session_state.mid_atten_db:.1f} dB / Side {st.session_state.side_gain_db:.1f} dB / "
                  f"Protect {st.session_state.protect_low_hz:.0f}-{st.session_state.protect_high_hz:.0f} Hz / "
                  f"Out {st.session_state.output_gain_db:.1f} dB")
 
-        if st.button("高品質で処理してダウンロード", type="primary"):
+        if st.button("高品質で処琁E��てダウンローチE, type="primary"):
             try:
-                with st.spinner("書き出し中..."):
+                with st.spinner("書き�Eし中..."):
                     out_b, out_mime, out_name = process_now(
                         st.session_state.upload_bytes, st.session_state.upload_name
                     )
-                st.download_button("結果をダウンロード",
+                st.download_button("結果をダウンローチE,
                                    data=io.BytesIO(out_b),
                                    file_name=out_name, mime=out_mime)
-                st.success("書き出しが完了しました。")
+                st.success("書き�Eしが完亁E��ました、E)
             except Exception as e:
                 st.error(str(e))
